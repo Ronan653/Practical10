@@ -37,7 +37,7 @@
     <div class="mt-4">           
        
         <!-- TBC - add a button to toggle the close ticket modal (_CloseModal.cshtml) -->
-        <button asp-condition=@User.HasOneOfRoles("admin,manager") diabled=@(!Model.Active) type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+        <button asp-condition=@User.HasOneOfRoles("admin,manager") disabled=@(!Model.Active) type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
             data-bs-target="#CloseTicketModal">
             <i class="bi bi-trash"></i>Close 
         </button>
