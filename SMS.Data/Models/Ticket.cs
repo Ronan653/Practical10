@@ -15,8 +15,12 @@ namespace SMS.Data.Models
         [StringLength(500, MinimumLength = 5)]
         public string Issue { get; set; }
 
+        [StringLength(500)]
+        public string Resolution { get; set; }
+
         // TBC - add Resolution string attribute and ResolvedOn DateTime (initialise with DateTime.Min)
-        
+        public DateTime ResolvedOn { get; set; } = DateTime.MinValue;
+
         public DateTime CreatedOn { get; set; } = DateTime.Now;
        
         

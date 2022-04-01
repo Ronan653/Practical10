@@ -264,11 +264,12 @@ namespace SMS.Test
             var t = svc.CreateTicket(s.Id, "Dummy Ticket");
 
             // act
-            var r = svc.CloseTicket(t.Id);
+            var r = svc.CloseTicket(t.Id, "Resolved");
 
             // assert
             Assert.NotNull(r);              // verify closed ticket returned          
             Assert.False(r.Active);
+            Assert.Equal("Resolved", r.Resolution);
         }
 
         [Fact] 
@@ -279,8 +280,8 @@ namespace SMS.Test
             var t = svc.CreateTicket(s.Id, "Dummy Ticket");
 
             // act
-            var closed = svc.CloseTicket(t.Id);     // close active ticket    
-            closed = svc.CloseTicket(t.Id);         // close non active ticket
+            var closed = svc.CloseTicket(t.Id, "Resolved");     // close active ticket    
+            closed = svc.CloseTicket(t.Id, "Resolved");         // close non active ticket
 
             // assert
             Assert.Null(closed);                    // no ticket returned as already closed
@@ -299,6 +300,45 @@ namespace SMS.Test
             // assert
             Assert.True(deleted);                    // ticket should be deleted
         }   
+
+        [Fact] 
+        public void Ticket_SearchTicket_WhenTicketsAvailable_ShouldReturnTickets()
+        {
+            // arrange
+            var s = svc.AddStudent("XXX", "xxx@email.com", "Computing", 20, 0, "http://photo.com");
+            var t1 = svc.CreateTicket(s.Id, "Dummy Ticket 1");
+            var t2 = svc.CreateTicket(s.Id, "Dummy Ticket 2");
+            var t3 = svc.CreateTicket(s.Id, "Dummy Ticket 3");
+
+            svc.CloseTicket(t1.Id,"Resolved");
+            
+            // act
+            var results = svc.SearchTickets(TicketRange.ALL, "dum");     // delete ticket    
+            
+            // assert
+            Assert.Equal(3,results.Count);                    // ticket should be deleted
+        }   
+
+        [Fact] 
+        public void Ticket_SearchTicket_When0TicketsAvailable_ShouldReturnNone()
+        {
+            // arrange
+            var s = svc.AddStudent("XXX", "xxx@email.com", "Computing", 20, 0, "http://photo.com");
+            var t1 = svc.CreateTicket(s.Id, "Dummy Ticket 1");
+            var t2 = svc.CreateTicket(s.Id, "Dummy Ticket 2");
+            var t3 = svc.CreateTicket(s.Id, "Dummy Ticket 3");
+
+            svc.CloseTicket(t1.Id,"Resolved");
+            svc.CloseTicket(t2.Id,"Resolved");
+            svc.CloseTicket(t3.Id,"Resolved");
+            
+            // act
+            var results = svc.SearchTickets(TicketRange.OPEN, "dum");     // delete ticket    
+            
+            // assert
+            Assert.Equal(0,results.Count);                    // ticket should be deleted
+        }   
+
 
         [Fact] 
         public void Ticket_DeleteTicket_WhenNonExistant_ShouldReturnFalse()

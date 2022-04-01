@@ -146,7 +146,7 @@ namespace SMS.Data.Services
                      .FirstOrDefault(t => t.Id == id);
         }
 
-        public Ticket CloseTicket(int id) // TBC - add resolution paremeter)
+        public Ticket CloseTicket(int id, string resolution) // TBC - add resolution paremeter)
         {
             var ticket = GetTicket(id);
             // if ticket does not exist or is already closed return null
@@ -155,7 +155,9 @@ namespace SMS.Data.Services
             // ticket exists and is active so close
             ticket.Active = false;
             // TBC - add Resolution and ResolvedOn (DateTime.Now)
-           
+            ticket.Resolution = resolution;
+            ticket.ResolvedOn = DateTime.Now;
+            
             db.SaveChanges(); // write to database
             return ticket;
         }
@@ -193,14 +195,26 @@ namespace SMS.Data.Services
 
         // perform a search of the tickets based on a query and
         // an active range 'ALL', 'OPEN', 'CLOSED'
-        public IList<Ticket> SearchTickets(TicketRange range, string query) 
+        public IList<Ticket> SearchTickets(TicketRange range, string query="") 
         {
             // TBC - complete a Linq query to search Ticket resolutions and Student names for the query
             //     to allow our query to perform partial searches i.e. find a piece of text with Resolution or Name we can use Contains and ToLowerCase
             //       (t.Resolution.ToLowerCase().Contains(query.ToLowerCase()) || t.Student.Name.ToLowerCase().Contains(query.ToLowerCase))
             //     We can then && to this a query to check the range e.g.
             //      (range == TicketRange.OPEN && t.Active || range == TicketRange.CLOSED && !t.Active || range == TicketRange.ALL)
-            return  null;  
+
+            query = query == null ? "" : query;
+
+            var q = query.ToLower();
+
+            return db.Tickets
+                             .Include(t => t.Student)
+                             .Where( t => 
+                                (t.Issue.ToLower().Contains(q) || t.Student.Name.ToLower().Contains(q)) &&
+                                (range == TicketRange.OPEN && t.Active ||
+                                 range == TicketRange.CLOSED && !t.Active ||
+                                 range == TicketRange.ALL)     
+                            ).ToList();
         }
 
         // ========================= Module Management ========================
